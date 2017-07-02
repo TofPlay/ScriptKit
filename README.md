@@ -21,7 +21,7 @@ No 😁. ScriptKit has been designed to be as simple as possible. You can see Sc
 # What is the advantage of using ScriptKit?
 
 ScriptKit allows to create a real executable that will be much faster than a script in Bash, Python or Ruby. With ScriptKit you generated an executable with no dependencies. 
-It is therefore very easy to install and you do not need to manage an environment like for Python or Ruby.
+It is therefore very easy to install and you don't need to manage an environment like for Python or Ruby.
 
 If you are an iOS or macOS developer you will no longer need to juggle with different languages. You can use Xcode to develop and debug your command line tools, your iOS app or macOS app. 
 You will stay focus on Swift and spend your time improving your skills in Swift. 
