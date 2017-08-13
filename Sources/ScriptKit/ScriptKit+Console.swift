@@ -132,10 +132,10 @@ extension ScriptKit {
   @discardableResult
   public class func print(title pTitle:String, description pDescription:String) -> ScriptKit.Type  {
     let lWidth = screenSize().width
-    let lRawTitle = pTitle.replace(search: "\u{1B}", with: "").replace(regEx: "\\[[^m]*m", template: "") ?? pTitle
+    let lRawTitle = pTitle.replace(regEx: "\u{1b}\\[[^m]*m", template: "", partial: true) ?? pTitle
     let lTitleSize = lRawTitle.count
     let lLines = pDescription.split(size: lWidth - lTitleSize)
-    
+
     for lI in 0..<lLines.count {
       var lDisplay = ""
       
