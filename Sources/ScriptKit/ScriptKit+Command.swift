@@ -229,7 +229,7 @@ extension ScriptKit {
   ///   - pTitle: A short descrition of this command
   ///   - pHelp: A long descrition of this command
   /// - Returns: ScriptKit class object for chaining settings
-  public class func option(short pShort:String="", long pLong:String, variable pVariable:String, `default` pDefault:String?=nil, optional pOptional:Bool=true, title pTitle:String="", help pHelp:String="") {
+  public class func option(short pShort:String="", long pLong:String, variable pVariable:String, `default` pDefault:String?=nil, value pValue:String?=nil, optional pOptional:Bool=true, title pTitle:String="", help pHelp:String="") {
     if self.scriptError == .noerror {
       
       guard pLong.isEmpty == false else {
@@ -242,7 +242,7 @@ extension ScriptKit {
         return
       }
       
-      let lOption = Option(short: pShort, long: pLong, variable: pVariable, default: pDefault, optional: pOptional, title:pTitle, help: pHelp)
+      let lOption = Option(short: pShort, long: pLong, variable: pVariable, default: pDefault, value: pValue, optional: pOptional, title:pTitle, help: pHelp)
       
       if let lCurrent = self.current {
         // Option for the current command
@@ -338,7 +338,7 @@ extension ScriptKit {
       
       print("\n\n".cli.text)
     } else {
-      var lVar:[String:String] = [:]
+      var lVars:[String:String] = [:]
       var lArgs:[String] = pArguments
       var lInvalids:[String] = []
       
@@ -348,7 +348,12 @@ extension ScriptKit {
         let lArg = lArgs.removeFirst()
         // Options
         if let lVal = self.eval(options: lCmd.options, parameter: lArg, stack: &lArgs) {
-          lVar[lVal.variable] = lVal.value ?? ""
+          if lVal.option.value != nil && lVal.value == nil {
+            lInvalids.append(lArg)
+            continue
+          }
+          
+          lVars[lVal.option.variable] = lVal.value ?? ""
         } else {
           // Sub-commands
           if let lSubcmds = lCmd.cmds {
@@ -362,7 +367,7 @@ extension ScriptKit {
                     lArgs.append(lValue)
                     continue
                   }
-                  lVar[lVariable] = lValue
+                  lVars[lVariable] = lValue
                 }
               }
             } else {
@@ -377,17 +382,17 @@ extension ScriptKit {
       var lDisplayHelp = false
       
       // Found option '--help'
-      if lVar.keys.contains(where: { $0 == "help" }) {
+      if lVars.keys.contains(where: { $0 == "help" }) {
         lDisplayHelp = true
       } else {
         // Command with option required
         if (lCmd.options.filter({$0.optional==false}).count > 0) {
-          if lVar.keys.count == 0 {
+          if lVars.keys.count == 0 {
             lDisplayHelp = true
           }
         } else {
           // Command with parameter
-          if lCmd.variable != nil && lVar.keys.count == 0 {
+          if lCmd.variable != nil && lVars.keys.count == 0 {
             lDisplayHelp = true
           } else {
             // Command with a list of sub-commands
@@ -412,12 +417,12 @@ extension ScriptKit {
         }
         
         let lRequire = Set(lCmd.options.filter({ $0.optional == false }).map({ $0.long }))
-        let lMissings = lRequire.subtracting(Set(lVar.keys))
+        let lMissings = lRequire.subtracting(Set(lVars.keys))
         
         if lMissings.count > 0 {
           let lPlurial = lMissings.count > 1 ? "s" : ""
           var lSize = 0
-            
+          
           lMissings.forEach({
             pLong in
             
@@ -445,7 +450,7 @@ extension ScriptKit {
           print("\n")
         } else {
           if let lHandler = lCmd.handler {
-            lHandler(lVar)
+            lHandler(lVars)
           }
         }
       }
@@ -454,6 +459,14 @@ extension ScriptKit {
   
   // XT: Display methods
   
+  /// Display different types of messages
+  ///
+  /// - Parameters:
+  ///   - pType: Type of message. Can be `info`, `warning`, `error`, `yes`, `no`, `compute`, `build`, `action`, `msg` or `done`.
+  ///   - pVerbose: `true` display the message
+  ///   - pClear: `true` erase the current line, `false` display the message to the next line. By default `compute` message are erase by a next message
+  ///   - pFormat: Format of the message
+  ///   - pArgs: Parameters associate to the format
   public class func display(type pType:Display.`Type`, verbose pVerbose:Bool = false, clear pClear:Bool = false, format pFormat:String = "",_ pArgs:CVarArg...) {
     let lSpace = String(repeating:" ", count: Display.level * 2)
     var lMessage = pArgs.count > 0 ? String(format: pFormat, arguments: pArgs) : pFormat
@@ -543,6 +556,7 @@ extension ScriptKit {
     public var long:String = ""
     public var variable:String = ""
     public var `default`:String? = nil
+    public var value:String? = nil
     public var optional: Bool = true
     public var title:String = ""
     public var help:String = ""
@@ -550,11 +564,12 @@ extension ScriptKit {
     public init() {
     }
     
-    public init(short pShort:String="", long pLong:String, variable pVariable:String="", `default` pDefault:String? = nil, optional pOptional:Bool=true,title pTitle:String, help pHelp:String = "") {
+    public init(short pShort:String="", long pLong:String, variable pVariable:String="", `default` pDefault:String? = nil, value pValue:String?=nil, optional pOptional:Bool=true,title pTitle:String, help pHelp:String = "") {
       self.short = pShort
       self.long = pLong
       self.variable = pVariable
       self.default = pDefault
+      self.value = pValue
       self.optional = pOptional
       self.title = pTitle
       self.help = pHelp
@@ -642,13 +657,13 @@ extension ScriptKit {
   
   // MARK: -> Private class methods
   
-  private class func eval(options pOptions:[Option], parameter pParameter:String, stack pStack: inout [String]) -> (variable:String, value:String?)? {
-    var lRet:(String,String?)? = nil
+  private class func eval(options pOptions:[Option], parameter pParameter:String, stack pStack: inout [String]) -> (option:Option, value:String?)? {
+    var lRet:(Option,String?)? = nil
     
     for lOption in pOptions where lRet == nil {
       // Long option: --<option>, --<option>=<value> or --<option> <value>
       // Short option: -<option>, -<option>=<value> or -<option> <value>
-      if pParameter.hasPrefix("--" + lOption.long) || pParameter.hasPrefix("-" + lOption.short) {
+      if (lOption.long.isEmpty == false && pParameter.hasPrefix("--" + lOption.long)) || (lOption.short.isEmpty == false && pParameter.hasPrefix("-" + lOption.short)) {
         var lValue:String? = lOption.default
         
         if pParameter.contains("=") {
@@ -665,11 +680,11 @@ extension ScriptKit {
           }
         }
         
-        lRet = (lOption.variable, value:lValue)
+        lRet = (option: lOption, value:lValue)
       }
       
       if pParameter == "--help" {
-        lRet = ("help", "true")
+        lRet = (option:Option(long: "help", title: "Current screen"), value:"true")
       }
     }
     
@@ -721,9 +736,9 @@ extension ScriptKit {
         lDisplay += lKeyColor
         lDisplay += "--\(lOption.long)"
         
-        if lOption.default != nil {
-          lDisplay += "=<\(lOption.variable)>"
-          lSizeOpt += lOption.variable.count + 3
+        if let lValue = lOption.value {
+          lDisplay += "=<\(lValue)>"
+          lSizeOpt += lValue.count + 3
         }
         
         lDisplay += String(repeating: " ", count: lSize - lSizeOpt)
@@ -734,7 +749,7 @@ extension ScriptKit {
         print(lDisplay + "\n")
       }
     }
-      
+    
     for lOption in lOptions {
       var lOptSize:Int = lOption.long.count + 2
       
@@ -742,29 +757,29 @@ extension ScriptKit {
         lOptSize += lOption.short.count + 2
       }
       
-      if lOption.default != nil {
-        lOptSize += lOption.variable.count + 3
+      if let lValue = lOption.value {
+        lOptSize += lValue.count + 3
       }
       
       if lOptSize > lSize {
         lSize = lOptSize
       }
     }
-      
+    
     let lRequired = lOptions.filter({ $0.optional == false })
     let lOptional = lOptions.filter({ $0.optional == true })
-      
+    
     if lRequired.count > 0 {
       lHelp("Required".cli.title + ":\n".cli.text, lRequired)
       print("\n")
     }
-
+    
     if lOptional.count > 0 {
       let lPlusrial = lOptional.count > 1 ? "s" : ""
       lHelp("Optional\(lPlusrial)".cli.title + ":\n".cli.text, lOptional)
       print("\n")
     }
-      
+    
     // List sub commands
     if let lCmds = pCmd.cmds, lCmds.count > 0 {
       var lSize = 0
@@ -780,7 +795,7 @@ extension ScriptKit {
           lSize = lCmdSize
         }
       }
-
+      
       if pSubcommands {
         print("Sub-commands".cli.title + ":\n".cli.text)
       } else {
@@ -807,7 +822,7 @@ extension ScriptKit {
     }
     
   }
-
+  
   // MARK: -> Private init methods
   
   // MARK: -> Private operators
@@ -815,3 +830,4 @@ extension ScriptKit {
   // MARK: -> Private methods
   
 }
+
