@@ -1,4 +1,19 @@
-.DS_Store
-/.build
-/Packages
 /*.xcodeproj
+
+# SwiftPM
+#
+/.build
+Packages/
+Package.resolved
+
+# CocoaPods
+#
+Pods/
+Podfile.lock
+
+# Carthage
+#
+Carthage/
+Cartfile.resolved
+
+*.DS_Store
