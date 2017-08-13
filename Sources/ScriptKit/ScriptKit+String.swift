@@ -703,12 +703,14 @@ extension String {
   ///   - pRegEx: Regular expression use to search
   ///   - pTemplate: Template use to replace
   /// - Returns: a new string with the modification
-  public func replace(regEx pRegEx: String, template pTemplate: String) -> String? {
+  public func replace(regEx pRegEx: String, template pTemplate: String, partial pPartial:Bool = false) -> String? {
     var lRet:String? = nil
     
     do {
-      let lRegex = try NSRegularExpression(pattern: pRegEx, options: [])
-      lRet = lRegex.stringByReplacingMatches(in: self, options: [], range: NSRange(location: 0, length: self.count), withTemplate: pTemplate)
+      if self.match(regEx: pRegEx, partial: pPartial) {
+        let lRegex = try NSRegularExpression(pattern: pRegEx, options: [])
+        lRet = lRegex.stringByReplacingMatches(in: self, options: [], range: NSRange(location: 0, length: self.count), withTemplate: pTemplate)
+      }
     } catch let lError {
       debugPrint("\"\(self)\".replace(regEx:\(pRegEx), template:\(pTemplate)) => \(lError)")
     }
@@ -749,7 +751,7 @@ extension String {
   ///
   /// - Parameter:
   ///   - pRegEx: Regular Expression
-  ///   - pPartial: `true` must match all the string, `false` partial match is accepted
+  ///   - pPartial: `false` must match all the string, `true` partial match is accepted
   /// - Returns: `true` if the regex match with the string. Otherwise return `false`
   public func match(regEx pRegEx: String, partial pPartial:Bool = false) -> Bool {
     var lRet:Bool = false
@@ -761,7 +763,7 @@ extension String {
         lRet = pPartial == false ? lMatch.range.location == 0 && lMatch.range.length == self.utf16.count : true
       }
     } catch let lError {
-      debugPrint("\"\(self)\".match(regEx:\(pRegEx)) => \(lError)")
+      debugPrint("string: \"\(self)\"\nregEx:\"\(pRegEx)\"\nError: \(lError)")
     }
     
     return lRet
