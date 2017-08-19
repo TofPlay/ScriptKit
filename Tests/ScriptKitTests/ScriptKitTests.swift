@@ -67,16 +67,34 @@ class ScriptKitTests: XCTestCase {
     XCTAssertTrue(lShoudBeCount == lLines.count, "Split string")
   }
   
+  func test_string_before() {
+    let lString = "Et animus ita eius insontium existimans aut insontium tener cogitatum "
+    let lValue = lString.before("eius")
+    
+    XCTAssertTrue(lValue == "Et animus ita ", "Before string")
+  }
+  
+  func test_string_after() {
+    let lString = "Et animus ita eius insontium existimans aut insontium tener cogitatum "
+    let lValue = lString.after("eius")
+    
+    XCTAssertTrue(lValue == " insontium existimans aut insontium tener cogitatum ", "Before string")
+  }
+  
   func test_string_replace() {
     let lString = "Et animus ita eius insontium existimans aut insontium tener cogitatum "
-    let lValue = lString.replace(search: "existimans", with: "******")
+    var lValue = lString.replace(search: "existimans", with: "******")
     
     XCTAssertTrue(lValue == "Et animus ita eius insontium ****** aut insontium tener cogitatum ", "Search and replace a string")
+    
+    lValue = lString.replace(search: "in", with: "inX")
+    
+    XCTAssertTrue(lValue == "Et animus ita eius inXsontium existimans aut inXsontium tener cogitatum ", "Search and replace a string")
   }
   
   func test_string_replace_regex() {
     let lString = "Et animus ita eius insontium existimans aut insontium tener cogitatum "
-    let lValue = lString.replace(regEx: "(exis[^ ]*)", template: "******")
+    let lValue = lString.replace(regEx: "exis[^ ]*", template: "******", partial: true)
     
     XCTAssertTrue(lValue == "Et animus ita eius insontium ****** aut insontium tener cogitatum ", "Search and replace a string with a regex")
   }

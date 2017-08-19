@@ -520,25 +520,6 @@ extension String {
   
   // XT: Extract methods
   
-  /// Replace a substring by another substring
-  ///
-  /// - Parameters:
-  ///   - pString: Search substring
-  ///   - pSub: Replace substring
-  ///   - pNb: Number of occurence you want to replace. By default all.
-  /// - Returns: a new instance of which was the replacement, otherwise return the original string
-  public func replace(string pString:String, sub pSub:String, nb pNb:Int = -1) -> String {
-    var lRet:String = self
-    var lNb = 0
-    
-    while let lRange = lRet.range(of: pString) , pNb == -1 || lNb < pNb {
-      lNb += 1
-      lRet.replaceSubrange(lRange, with: pSub)
-    }
-    
-    return lRet
-  }
-  
   /// Extract string before a specific string
   ///
   /// - Parameter:
@@ -548,7 +529,7 @@ extension String {
     var lRet:String? = nil
     
     if let lRange = self.range(of: pString) {
-      lRet = self.substring(to: lRange.lowerBound)
+      lRet = String(self[..<lRange.lowerBound])
     }
     
     return lRet
@@ -563,7 +544,7 @@ extension String {
     var lRet:String? = nil
     
     if let lRange = self.range(of: pString) {
-      lRet = self.substring(from: lRange.upperBound)
+      lRet = String(self[lRange.upperBound...])
     }
     
     return lRet
@@ -681,17 +662,9 @@ extension String {
   /// - Parameters:
   ///   - pSearch: String to search
   ///   - pWith: Replace string
-  ///   - pNb: Number of occurences. By default -1 for all occurences
   /// - Returns: a new string with the modification
-  public func replace(search pSearch:String, with pWith:String, nb pNb:Int = -1) -> String {
-    var lRet = self
-    var lNb = 0
-    
-    while let lRange = lRet.range(of: pSearch) , pNb == -1 || lNb < pNb {
-      lNb += 1
-      lRet.replaceSubrange(lRange, with: pWith)
-    }
-    
+  public func replace(search pSearch:String, with pWith:String) -> String {
+    let lRet = self.replacingOccurrences(of: pSearch, with: pWith, options: .literal)
     return lRet
   }
   

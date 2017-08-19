@@ -3,7 +3,7 @@
 </p>
 
 ![macOS](https://img.shields.io/badge/macOS-10.12.5-6193DF.svg)
-![Xcode](https://img.shields.io/badge/Xcode-9.0%20beta%204-6193DF.svg)
+![Xcode](https://img.shields.io/badge/Xcode-9.0%20beta%205-6193DF.svg)
 ![Swift Version](https://img.shields.io/badge/Swift-4.0-orange.svg) 
 [![SwiftPM compatible](https://img.shields.io/badge/SwiftPM-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager) 
 ![Plaform](https://img.shields.io/badge/Platform-macOS-lightgrey.svg)
@@ -29,7 +29,7 @@ You will stay focus on Swift and spend your time improving your skills in Swift.
 # Environment
 
 - macOS 10.12.5
-- Xcode 9 Beta 4
+- Xcode 9 Beta 5
 - Swift 4
 
 # Documentation
