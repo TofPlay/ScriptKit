@@ -46,7 +46,7 @@
 <details>
 <summary>Execute some command in the shell</summary>
 
-`public func run(_ pCmd:String? = nil, size pSize:Int=80, seperator pSeperator:String = "", readLine pReadLine:Readline? = nil) -> Self`
+`public func run(_ pCmd:String? = nil, size pSize:Int=80, seperator pSeperator:String = "\r\n", readLine pReadLine:Readline? = nil) -> Self`
 
  Example:
  ```
@@ -57,7 +57,7 @@
  It's why by default the size is set to 80 bytes. It's almost the size of one line in the screen.
 
  - Parameters:
-   - pCmd: Commands execute by the shel
+   - pCmd: Commands execute by the shell
    - pSize: Size of the cache. The handler is call when the cache is full.
    - pSeperator: Characters to cut the buffer in lines
    - pReadLine: Handler call for each line receive

@@ -96,7 +96,7 @@ extension ScriptKit {
     /// It's why by default the size is set to 80 bytes. It's almost the size of one line in the screen.
     ///
     /// - Parameters:
-    ///   - pCmd: Commands execute by the shel
+    ///   - pCmd: Commands execute by the shell
     ///   - pSize: Size of the cache. The handler is call when the cache is full.
     ///   - pSeperator: Characters to cut the buffer in lines
     ///   - pReadLine: Handler call for each line receive

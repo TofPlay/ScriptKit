@@ -55,7 +55,7 @@ extension ScriptKit {
     return lRet
   }
   
-  /// Temp directory
+  /// Document directory
   public static var documentDirectory:String {
     var lRet = ""
     do {
@@ -454,7 +454,7 @@ extension ScriptKit {
 
   //XT: Tools methods
   
-  /// Simulate "whereis"`" instruction
+  /// Simulate `whereis` instruction
   ///
   /// Extract paths from PATH and check if a program exist on these paths
   ///

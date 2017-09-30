@@ -22,7 +22,7 @@
 </details>
 
 <details>
-<summary>Temp directory</summary>
+<summary>Document directory</summary>
 
 `public static var documentDirectory:String`
 </details>
@@ -282,7 +282,7 @@
 ### Tools methods
 
 <details>
-<summary>Simulate "whereis"`" instruction</summary>
+<summary>Simulate `whereis` instruction</summary>
 
 `public class func whereis(_ pName:String) -> String?`
 
@@ -502,7 +502,7 @@
 <details>
 <summary>Read a text file and split into an array of lines</summary>
 
-`public class func readLines(file pFile:String, seperator pSep:String="") -> [String]?`
+`public class func readLines(file pFile:String, seperator pSep:String="\n") -> [String]?`
 
  - Parameters:
    - pFile: Path of a text file
@@ -547,7 +547,7 @@
 <details>
 <summary>Write lines of text to a file</summary>
 
-`public class func writeText(file pFile:String, lines pLines:[String], seperator pSeparator:String = "", encode pEncode:String.Encoding=String.Encoding.utf8) -> Bool`
+`public class func writeText(file pFile:String, lines pLines:[String], seperator pSeparator:String = "\n", encode pEncode:String.Encoding=String.Encoding.utf8) -> Bool`
 
  - Parameters:
    - pFile: Path of the file

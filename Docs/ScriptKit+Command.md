@@ -66,8 +66,8 @@
 <details>
 <summary>Declare version, copyright, year and a description of what your command line app is doing</summary>
 
-`public class func program(version pVersion:String, owner pOwner:String, year pYear:String="")`
- ATTENION: This method will reset all internal datas. You will loose all previous settings
+`public class func program(version pVersion:String, owner pOwner:String, year pYear:String="", info pInfo:String="")`
+ ATTENTION: This method will reset all internal datas. You will loose all previous settings
 
  - Parameters:
    - pVersion: Version of your app
@@ -80,7 +80,7 @@
 <details>
 <summary>Your application can define a collection of commands and sub-commands</summary>
 
-`public class func cmd(_ pName:String, variable pVariable:String?=nil, title pTitle:String="", handler pCmdHandler:CmdHandler? = nil)`
+`public class func cmd(_ pName:String, variable pVariable:String?=nil, title pTitle:String="", help pHelp:String="", handler pCmdHandler:CmdHandler? = nil)`
 
  Each command have his own keyword, a text that describ the commande and instructions
 
@@ -127,7 +127,7 @@
 <details>
 <summary>Each command can define a set of options. Each option must define a long keyword and a variable. A short keyword, a default value for the variable,</summary>
 
-`public class func option(short pShort:String="")`
+`public class func option(short pShort:String="", long pLong:String, variable pVariable:String, `default` pDefault:String?=nil, value pValue:String?=nil, optional pOptional:Bool=true, title pTitle:String="", help pHelp:String="")`
  are optionals.
 
  - Parameters:
@@ -180,4 +180,17 @@
 </details>
 
 ### Display methods
+
+<details>
+<summary>Display different types of messages</summary>
+
+`public class func display(type pType:Display.`Type`, verbose pVerbose:Bool = false, clear pClear:Bool = false, format pFormat:String = "",_ pArgs:CVarArg...)`
+
+ - Parameters:
+   - pType: Type of message. Can be `info`, `warning`, `error`, `yes`, `no`, `compute`, `build`, `action`, `msg` or `done`.
+   - pVerbose: `true` display the message
+   - pClear: `true` erase the current line, `false` display the message to the next line. By default `compute` message are erase by a next message
+   - pFormat: Format of the message
+   - pArgs: Parameters associate to the format
+</details>
 

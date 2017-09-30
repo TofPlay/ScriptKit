@@ -390,7 +390,7 @@ extension String {
   ///   - pBytes: Bytes value
   ///   - pDecimal: Decimal you want to display
   /// - Returns: generate a string with the bytes in B (bytes), KB, MB, GB, TB, PB, EB, ZB, YB
-  public static func format(bytes pBytes:CGFloat, decimal pDecimal:Int = 0) -> String {
+  public static func format(bytes pBytes:Float, decimal pDecimal:Int = 0) -> String {
     var lRet = "0B"
     
     if pBytes > 0.0 {
@@ -415,7 +415,7 @@ extension String {
   ///   - pSpeed: Speed in bytes per second
   ///   - pDecimal: Decimal you want to display
   /// - Returns: generate a string with the bytes in B/s (bytes), KB/s, MB/s, GB/s, TB/s, PB/s, EB/s, ZB/s, YB/s
-  public static func format(speed pSpeed:CGFloat, decimal pDecimal:Int = 0) -> String {
+  public static func format(speed pSpeed:Float, decimal pDecimal:Int = 0) -> String {
     let lRet = String.init(format: "%@/s", String.format(bytes: pSpeed, decimal: pDecimal))
     return lRet
   }
@@ -464,7 +464,7 @@ extension String {
   // MARK: -> Public operators
   
   // MARK: -> Public methods
-
+  
   // MARK: --> subscript
   
   // XT: Subscripts
@@ -519,6 +519,25 @@ extension String {
   // MARK: --> Extract
   
   // XT: Extract methods
+  
+  /// Replace a substring by another substring
+  ///
+  /// - Parameters:
+  ///   - pString: Search substring
+  ///   - pSub: Replace substring
+  ///   - pNb: Number of occurence you want to replace. By default all.
+  /// - Returns: a new instance of which was the replacement, otherwise return the original string
+  public func replace(string pString:String, sub pSub:String, nb pNb:Int = -1) -> String {
+    var lRet:String = self
+    var lNb = 0
+    
+    while let lRange = lRet.range(of: pString) , pNb == -1 || lNb < pNb {
+      lNb += 1
+      lRet.replaceSubrange(lRange, with: pSub)
+    }
+    
+    return lRet
+  }
   
   /// Extract string before a specific string
   ///
@@ -662,9 +681,17 @@ extension String {
   /// - Parameters:
   ///   - pSearch: String to search
   ///   - pWith: Replace string
+  ///   - pNb: Number of occurences. By default -1 for all occurences
   /// - Returns: a new string with the modification
-  public func replace(search pSearch:String, with pWith:String) -> String {
-    let lRet = self.replacingOccurrences(of: pSearch, with: pWith, options: .literal)
+  public func replace(search pSearch:String, with pWith:String, nb pNb:Int = -1) -> String {
+    var lRet = self
+    var lNb = 0
+    
+    while let lRange = lRet.range(of: pSearch) , pNb == -1 || lNb < pNb {
+      lNb += 1
+      lRet.replaceSubrange(lRange, with: pWith)
+    }
+    
     return lRet
   }
   
@@ -731,7 +758,7 @@ extension String {
     
     do {
       let lRegex = try NSRegularExpression(pattern: pRegEx, options: [.caseInsensitive])
-
+      
       if let lMatch = lRegex.firstMatch(in: self, options: [], range: NSMakeRange(0, self.utf16.count)) {
         lRet = pPartial == false ? lMatch.range.location == 0 && lMatch.range.length == self.utf16.count : true
       }

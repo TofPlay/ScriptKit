@@ -417,7 +417,7 @@
 <details>
 <summary>Format bytes</summary>
 
-`public static func format(bytes pBytes:CGFloat, decimal pDecimal:Int = 0) -> String`
+`public static func format(bytes pBytes:Float, decimal pDecimal:Int = 0) -> String`
 
  - Parameters:
    - pBytes: Bytes value
@@ -428,7 +428,7 @@
 <details>
 <summary>Format speed</summary>
 
-`public static func format(speed pSpeed:CGFloat, decimal pDecimal:Int = 0) -> String`
+`public static func format(speed pSpeed:Float, decimal pDecimal:Int = 0) -> String`
 
  - Parameters:
    - pSpeed: Speed in bytes per second
@@ -512,7 +512,7 @@
 <details>
 <summary>Extract the last occurence</summary>
 
-`public func lastWord(_ pSeparator:String = "") -> String?`
+`public func lastWord(_ pSeparator:String = " ") -> String?`
 
  - Parameter:
    - pSeparator: Split the string with this separator
@@ -522,7 +522,7 @@
 <details>
 <summary>Extract the string without the last occurence</summary>
 
-`public func withoutLastWord(_ pSeparator:String = "") -> String?`
+`public func withoutLastWord(_ pSeparator:String = " ") -> String?`
 
  - Parameter:
    - pSeparator: Split the string with this separator
@@ -534,7 +534,7 @@
 <details>
 <summary>Trim the beginning of the string</summary>
 
-`public func trimStart(_ pCharacters:String = "") -> String`
+`public func trimStart(_ pCharacters:String = " \n\r\t") -> String`
 
  - Parameter:
    - pCharacters: Set of characters you want to remove. By default set to " \n\r\t"
@@ -544,7 +544,7 @@
 <details>
 <summary>Trim the end of the string</summary>
 
-`public func trimEnd(_ pCharacters:String = "") -> String`
+`public func trimEnd(_ pCharacters:String = " \n\r\t") -> String`
 
  - Parameter:
    - pCharacters: Set of characters you want to remove. By default set to " \n\r\t"
@@ -554,7 +554,7 @@
 <details>
 <summary>Trim both begining and end of the string</summary>
 
-`public func trim(_ pCharacters:String = "") -> String`
+`public func trim(_ pCharacters:String = " \n\r\t") -> String`
 
  - Parameter:
    - pCharacters: Set of characters you want to remove. By default set to " \n\r\t"
@@ -592,7 +592,7 @@
 <details>
 <summary>Search all occurence of a regex and replace by a template for each</summary>
 
-`public func replace(regEx pRegEx: String, template pTemplate: String) -> String?`
+`public func replace(regEx pRegEx: String, template pTemplate: String, partial pPartial:Bool = false) -> String?`
 
  - Parameters:
    - pRegEx: Regular expression use to search
@@ -617,7 +617,7 @@
 
  - Parameter:
    - pRegEx: Regular Expression
-   - pPartial: `true` must match all the string, `false` partial match is accepted
+   - pPartial: `false` must match all the string, `true` partial match is accepted
  - Returns: `true` if the regex match with the string. Otherwise return `false`
 </details>
 

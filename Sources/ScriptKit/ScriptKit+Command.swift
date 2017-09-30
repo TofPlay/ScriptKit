@@ -88,7 +88,7 @@ extension ScriptKit {
   // XT: Declare command line interface
   
   /// Declare version, copyright, year and a description of what your command line app is doing
-  /// ATTENION: This method will reset all internal datas. You will loose all previous settings
+  /// ATTENTION: This method will reset all internal datas. You will loose all previous settings
   ///
   /// - Parameters:
   ///   - pVersion: Version of your app
