@@ -43,9 +43,18 @@ extension ScriptKit {
     /// Last command
     public var command:String = ""
     
+    /// Separator
+    public var separator:String = "\r\n"
+
     /// Exit value of the external process
     public var exit:Int32 = 0
     
+    /// Standard output
+    public var stdout:[String] = []
+
+    /// Standard error
+    public var stderr:[String] = []
+
     /// Check if the shell is running
     public var isRunning:Bool {
       var lRet = false
@@ -109,98 +118,101 @@ extension ScriptKit {
         self.command = lCmd
       }
       
-      let lReadLine = pReadLine ?? { _ in }
+      let lPipeOut = Pipe()
+      let lPipeErr = Pipe()
       
       lProcess.launchPath = "/bin/sh"
       lProcess.arguments = ["-c", self.command]
       lProcess.environment = ScriptKit.env.current
       lProcess.currentDirectoryPath = ScriptKit.workdir()
+      lProcess.standardOutput = lPipeOut
+      lProcess.standardError = lPipeErr
       
       self.terminate()
       self.process = lProcess
       
-      self.isReadingOut = true
-      self.isReadingOut = true
-      
-      let lPipeOut = Pipe()
-      let lPipeErr = Pipe()
-      var lCacheOut = ""
-      var lCacheErr = ""
-      
-      let lReadData:(DispatchData?, inout String) -> Void = {
-        pDispatchData, pCache in
-
-        if let lDispatchData = pDispatchData {
-          let lCount = lDispatchData.count
-          var lBytes = [UInt8](repeating:0, count: lCount)
+      if let lReadLine = pReadLine {
+        self.isReadingOut = true
+        self.isReadingOut = true
+        
+        var lCacheOut = ""
+        var lCacheErr = ""
+        
+        let lReadData:(DispatchData?, inout String) -> Void = {
+          pDispatchData, pCache in
           
-          lBytes.withUnsafeMutableBytes {
-            lDispatchData.copyBytes(to: $0, count: lCount)
-          }
-          
-          let lData = Data(bytes: lBytes, count: lCount)
-          
-          if lData.count == 0 {
-            if pCache.isEmpty == false {
-              lReadLine(pCache)
-            }
-          } else {
-            let lString = pCache + (String(data: lData, encoding: String.Encoding.utf8) ?? "")
-            var lLines = lString.components(separatedBy: CharacterSet.init(charactersIn: pSeperator))
-            let lLastChar = lString[lString.index(before: lString.endIndex)]
+          if let lDispatchData = pDispatchData {
+            let lCount = lDispatchData.count
+            var lBytes = [UInt8](repeating:0, count: lCount)
             
-            if let lLast = lLines.last, pSeperator.contains(lLastChar) == false {
-              pCache = lLast
-              lLines.removeLast()
+            lBytes.withUnsafeMutableBytes {
+              lDispatchData.copyBytes(to: $0, count: lCount)
+            }
+            
+            let lData = Data(bytes: lBytes, count: lCount)
+            
+            if lData.count == 0 {
+              if pCache.isEmpty == false {
+                lReadLine(pCache)
+              }
             } else {
-              pCache = ""
-            }
-            
-            for lLine in lLines {
-              DispatchQueue.main.async {
-                lReadLine(lLine)
+              let lString = pCache + (String(data: lData, encoding: String.Encoding.utf8) ?? "")
+              var lLines = lString.components(separatedBy: CharacterSet.init(charactersIn: pSeperator))
+              let lLastChar = lString[lString.index(before: lString.endIndex)]
+              
+              if let lLast = lLines.last, pSeperator.contains(lLastChar) == false {
+                pCache = lLast
+                lLines.removeLast()
+              } else {
+                pCache = ""
+              }
+              
+              for lLine in lLines {
+                DispatchQueue.main.async {
+                  lReadLine(lLine)
+                }
               }
             }
           }
         }
-      }
-      
-      lProcess.standardOutput = lPipeOut
-      lProcess.standardError = lPipeErr
-      
-      let lDispatchOut = DispatchIO(type: .stream, fileDescriptor: lPipeOut.fileHandleForReading.fileDescriptor, queue: Shell.queue, cleanupHandler: {
-        _ in
         
+        let lDispatchOut = DispatchIO(type: .stream, fileDescriptor: lPipeOut.fileHandleForReading.fileDescriptor, queue: Shell.queue, cleanupHandler: {
+          _ in
+          
+          self.isReadingOut = false
+        })
+        
+        lDispatchOut.setLimit(lowWater: 1)
+        lDispatchOut.setLimit(highWater: pSize)
+        
+        lDispatchOut.read(offset: 0, length: Int.max, queue: Shell.queue) {
+          pDone, pDispatchData, pError in
+          
+          lReadData(pDispatchData, &lCacheOut)
+        }
+        
+        lDispatchOut.resume()
+        
+        let lDispatchErr = DispatchIO(type: .stream, fileDescriptor: lPipeErr.fileHandleForReading.fileDescriptor, queue: Shell.queue, cleanupHandler: {
+          _ in
+          
+          self.isReadingErr = false
+        })
+        
+        lDispatchErr.setLimit(lowWater: 1)
+        lDispatchErr.setLimit(highWater: pSize)
+        
+        lDispatchErr.read(offset: 0, length: Int.max, queue: Shell.queue) {
+          pDone, pDispatchData, pError in
+          
+          lReadData(pDispatchData, &lCacheErr)
+        }
+        
+        lDispatchErr.resume()
+      } else {
         self.isReadingOut = false
-      })
-      
-      lDispatchOut.setLimit(lowWater: 1)
-      lDispatchOut.setLimit(highWater: pSize)
-      
-      lDispatchOut.read(offset: 0, length: Int.max, queue: Shell.queue) {
-        pDone, pDispatchData, pError in
-
-        lReadData(pDispatchData, &lCacheOut)
-      }
-      
-      lDispatchOut.resume()
-      
-      let lDispatchErr = DispatchIO(type: .stream, fileDescriptor: lPipeErr.fileHandleForReading.fileDescriptor, queue: Shell.queue, cleanupHandler: {
-        _ in
-
         self.isReadingErr = false
-      })
-      
-      lDispatchErr.setLimit(lowWater: 1)
-      lDispatchErr.setLimit(highWater: pSize)
-      
-      lDispatchErr.read(offset: 0, length: Int.max, queue: Shell.queue) {
-        pDone, pDispatchData, pError in
-        
-        lReadData(pDispatchData, &lCacheErr)
       }
-      
-      lDispatchErr.resume()
       
       lProcess.launch()
         
@@ -224,6 +236,16 @@ extension ScriptKit {
           usleep(10)
         }
 
+        if let lPipeOut = lProcess.standardOutput as? Pipe {
+          let lData = lPipeOut.fileHandleForReading.readDataToEndOfFile()
+          self.stdout = (String(data: lData, encoding: String.Encoding.utf8) ?? "").components(separatedBy: CharacterSet.init(charactersIn: self.separator))
+        }
+        
+        if let lPipeErr = lProcess.standardError as? Pipe {
+          let lData = lPipeErr.fileHandleForReading.readDataToEndOfFile()
+          self.stderr = (String(data: lData, encoding: String.Encoding.utf8) ?? "").components(separatedBy: CharacterSet.init(charactersIn: self.separator))
+        }
+        
         self.exit = lProcess.terminationStatus
         lRet = self.exit
         self.process = nil

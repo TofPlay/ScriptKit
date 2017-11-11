@@ -475,6 +475,76 @@
    - pRange: A countable closed range
 </details>
 
+### [Semver](http://semver.org/) methods
+
+<details>
+<summary>Compare semver strings</summary>
+
+`public func compare(version pVersion:String, seperator pSeperator:String = ".") -> ComparisonResult`
+
+ Check if the current semver string is equal, greather than or less than an other string
+
+ - Parameters:
+   - pVersion: Other semver string
+   - pSeperator: seperator string. By default "."
+ - Returns: `.orderedSame`, `.orderedAscending` or `.orderedDescending`
+</details>
+
+<details>
+<summary>Check if the current semver string is the same of an other semver string</summary>
+
+`public func version(equalTo pVersion:String, seperator pSeperator:String = ".") -> Bool`
+
+ - Parameters:
+   - pVersion: Other semver string
+   - pSeperator: seperator string. By default "."
+ - Returns: `true` if they are the same otherwise return `false`
+</details>
+
+<details>
+<summary>Check if the current semver string is greater than an other semver string</summary>
+
+`public func version(greaterThan pVersion:String, seperator pSeperator:String = ".") -> Bool`
+
+ - Parameters:
+   - pVersion: Other semver string
+   - pSeperator: seperator string. By default "."
+ - Returns: `true` if the current semver string is greater than otherwise return `false`
+</details>
+
+<details>
+<summary>Check if the current semver string is less than an other semver string</summary>
+
+`public func version(lessThan pVersion:String, seperator pSeperator:String = ".") -> Bool`
+
+ - Parameters:
+   - pVersion: Other semver string
+   - pSeperator: seperator string. By default "."
+ - Returns: `true` if the current semver string is less than otherwise return `false`
+</details>
+
+<details>
+<summary>Check if the current semver string is the same or greater than an other semver string</summary>
+
+`public func version(equalToOrGreaterThan pVersion:String, seperator pSeperator:String = ".") -> Bool`
+
+ - Parameters:
+   - pVersion: Other semver string
+   - pSeperator: seperator string. By default "."
+ - Returns: `true` if the current semver string is same or greater than otherwise return `false`
+</details>
+
+<details>
+<summary>Check if the current semver string is the same or less than an other semver string</summary>
+
+`public func version(equalToOrLessThan pVersion:String, seperator pSeperator:String = ".") -> Bool`
+
+ - Parameters:
+   - pVersion: Other semver string
+   - pSeperator: seperator string. By default "."
+ - Returns: `true` if the current semver string is same or less than otherwise return `false`
+</details>
+
 ### Extract methods
 
 <details>

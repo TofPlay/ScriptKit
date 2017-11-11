@@ -14,9 +14,27 @@
 </details>
 
 <details>
+<summary>Separator</summary>
+
+`public var separator:String = "\r\n"`
+</details>
+
+<details>
 <summary>Exit value of the external process</summary>
 
 `public var exit:Int32 = 0`
+</details>
+
+<details>
+<summary>Standard output</summary>
+
+`public var stdout:[String] = []`
+</details>
+
+<details>
+<summary>Standard error</summary>
+
+`public var stderr:[String] = []`
 </details>
 
 <details>

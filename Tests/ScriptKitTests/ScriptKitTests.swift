@@ -12,6 +12,9 @@ class ScriptKitTests: XCTestCase {
     ("test_string_replace_regex", test_string_replace_regex),
     ("test_string_extract_regex", test_string_extract_regex),
     ("test_string_match_regex", test_string_match_regex),
+    ("test_string_semver_equal", test_string_semver_equal),
+    ("test_string_semver_greater_than", test_string_semver_greater_than),
+    ("test_string_semver_less_than", test_string_semver_less_than),
     ("test_folder_environment_get", test_folder_environment_get),
     ("test_folder_environment_set", test_folder_environment_set),
     ("test_folder_homeDirectory", test_folder_homeDirectory),
@@ -111,6 +114,29 @@ class ScriptKitTests: XCTestCase {
     let lValue = lString.match(regEx: "[\\w ]* existimans.*")
     
     XCTAssertTrue(lValue == true, "Regex \"[\\w ]* existimans.*\" must match \"\(lString)\"")
+  }
+  
+  func test_string_semver_equal() {
+    let lSemver = "1.1.0"
+    XCTAssertTrue(lSemver.version(equalTo: "1.1.0"))
+    XCTAssertFalse(lSemver.version(equalTo: "1.0"))
+    XCTAssertFalse(lSemver.version(equalTo: "1.2"))
+  }
+  
+  func test_string_semver_greater_than() {
+    let lSemver = "1.1.4"
+    XCTAssertTrue(lSemver.version(greaterThan: "1.1.1"))
+    XCTAssertTrue(lSemver.version(greaterThan: "1.1.2"))
+    XCTAssertTrue(lSemver.version(greaterThan: "1.1.3"))
+    XCTAssertFalse(lSemver.version(greaterThan: "1.1"))
+    XCTAssertFalse(lSemver.version(greaterThan: "1.1.5"))
+  }
+  
+  func test_string_semver_less_than() {
+    let lSemver = "1.1.4"
+    XCTAssertTrue(lSemver.version(lessThan: "1.1.5"))
+    XCTAssertFalse(lSemver.version(lessThan: "1.1"))
+    XCTAssertFalse(lSemver.version(lessThan: "1.1.1"))
   }
   
   func test_folder_environment_get() {

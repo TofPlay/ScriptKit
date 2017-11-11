@@ -477,7 +477,7 @@ extension String {
     var lRet = ""
     
     if pIndex < self.length && pIndex > -1 {
-      let lIndex = characters.index(startIndex, offsetBy: pIndex)
+      let lIndex = self.index(startIndex, offsetBy: pIndex)
       lRet = "\(self[lIndex])"
     }
     
@@ -492,8 +492,8 @@ extension String {
     var lRet = ""
     
     if pRange.lowerBound >= 0 && pRange.upperBound <= self.length {
-      let lStart = self.characters.index(startIndex, offsetBy: pRange.lowerBound)
-      let lEnd = self.characters.index(startIndex, offsetBy: pRange.upperBound)
+      let lStart = self.index(startIndex, offsetBy: pRange.lowerBound)
+      let lEnd = self.index(startIndex, offsetBy: pRange.upperBound)
       let lRange = lStart..<lEnd
       lRet = String(self[lRange])
     }
@@ -508,12 +508,99 @@ extension String {
     var lRet = ""
     
     if pRange.lowerBound >= 0 && pRange.upperBound <= self.length {
-      let lStart = self.characters.index(startIndex, offsetBy: pRange.lowerBound)
-      let lEnd = self.characters.index(startIndex, offsetBy: pRange.upperBound)
+      let lStart = self.index(startIndex, offsetBy: pRange.lowerBound)
+      let lEnd = self.index(startIndex, offsetBy: pRange.upperBound)
       let lRange = lStart...lEnd
       lRet = String(self[lRange])
     }
     return lRet
+  }
+  
+  // MARK: --> Semver 
+
+  // XT: [Semver](http://semver.org/) methods
+  
+  /// Compare semver strings
+  ///
+  /// Check if the current semver string is equal, greather than or less than an other string
+  ///
+  /// - Parameters:
+  ///   - pVersion: Other semver string
+  ///   - pSeperator: seperator string. By default "."
+  /// - Returns: `.orderedSame`, `.orderedAscending` or `.orderedDescending`
+  public func compare(version pVersion:String, seperator pSeperator:String = ".") -> ComparisonResult {
+    var lRet:ComparisonResult = .orderedSame
+    
+    if self != pVersion {
+      let lParamInts = pVersion.components(separatedBy: pSeperator)
+      let lCurrentInts = self.components(separatedBy: pSeperator)
+      
+      for lI in 0..<lParamInts.count where lRet == .orderedSame {
+        if lI == lCurrentInts.count {
+          lRet = .orderedAscending
+        } else {
+          if let lCurrentInt = Int(lCurrentInts[lI]), let lParamInt = Int(lParamInts[lI]) {
+            lRet = lParamInt == lCurrentInt ? .orderedSame : (lCurrentInt > lParamInt ? .orderedDescending : .orderedAscending)
+          } else {
+            break
+          }
+        }
+      }
+    }
+    
+    return lRet
+  }
+
+  /// Check if the current semver string is the same of an other semver string
+  ///
+  /// - Parameters:
+  ///   - pVersion: Other semver string
+  ///   - pSeperator: seperator string. By default "."
+  /// - Returns: `true` if they are the same otherwise return `false`
+  public func version(equalTo pVersion:String, seperator pSeperator:String = ".") -> Bool {
+    return self.compare(version: pVersion, seperator: pSeperator) == .orderedSame
+  }
+  
+  /// Check if the current semver string is greater than an other semver string
+  ///
+  /// - Parameters:
+  ///   - pVersion: Other semver string
+  ///   - pSeperator: seperator string. By default "."
+  /// - Returns: `true` if the current semver string is greater than otherwise return `false`
+  public func version(greaterThan pVersion:String, seperator pSeperator:String = ".") -> Bool {
+    return self.compare(version: pVersion, seperator: pSeperator) == .orderedDescending
+  }
+  
+  /// Check if the current semver string is less than an other semver string
+  ///
+  /// - Parameters:
+  ///   - pVersion: Other semver string
+  ///   - pSeperator: seperator string. By default "."
+  /// - Returns: `true` if the current semver string is less than otherwise return `false`
+  public func version(lessThan pVersion:String, seperator pSeperator:String = ".") -> Bool {
+    return self.compare(version: pVersion, seperator: pSeperator) == .orderedAscending
+  }
+  
+  /// Check if the current semver string is the same or greater than an other semver string
+  ///
+  /// - Parameters:
+  ///   - pVersion: Other semver string
+  ///   - pSeperator: seperator string. By default "."
+  /// - Returns: `true` if the current semver string is same or greater than otherwise return `false`
+  public func version(equalToOrGreaterThan pVersion:String, seperator pSeperator:String = ".") -> Bool {
+    let lResult = self.compare(version: pVersion, seperator: pSeperator)
+    return lResult == .orderedSame || lResult == .orderedDescending
+  }
+  
+  /// Check if the current semver string is the same or less than an other semver string
+  ///
+  /// - Parameters:
+  ///   - pVersion: Other semver string
+  ///   - pSeperator: seperator string. By default "."
+  /// - Returns: `true` if the current semver string is same or less than otherwise return `false`
+  public func version(equalToOrLessThan pVersion:String, seperator pSeperator:String = ".") -> Bool {
+    let lResult = self.compare(version: pVersion, seperator: pSeperator)
+    return lResult == .orderedSame || lResult == .orderedAscending
   }
   
   // MARK: --> Extract
