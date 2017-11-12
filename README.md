@@ -26,12 +26,6 @@ It is therefore very easy to install and you don't need to manage an environment
 If you are an iOS or macOS developer you will no longer need to juggle with different languages. You can use Xcode to develop and debug your command line tools, your iOS app or macOS app. 
 You will stay focus on Swift and spend your time improving your skills in Swift. 
 
-# Environment
-
-- macOS 10.12.5
-- Xcode 9 Beta 5
-- Swift 4
-
 # Documentation
 
 - [ScriptKit instructions](Docs/index.md)
