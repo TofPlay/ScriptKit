@@ -3,7 +3,7 @@
 //  XcodeTool
 //
 //  Created by Christophe Braud on 11/06/2017.
-//  Base on Tof Templates (https://goo.gl/GdyFiw)
+//  Base on Tof Templates (https://bit.ly/2OWAgmb)
 //  Copyright © 2017 Christophe Braud. All rights reserved.
 //
 

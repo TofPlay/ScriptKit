@@ -3,7 +3,7 @@
 //  ScriptKit
 //
 //  Created by Christophe Braud on 11/06/2017.
-//  Base on Tof Templates (https://goo.gl/GdyFiw)
+//  Base on Tof Templates (https://bit.ly/2OWAgmb)
 //  Copyright © 2017 Christophe Braud. All rights reserved.
 //
 
@@ -617,10 +617,12 @@ extension String {
   public func replace(string pString:String, sub pSub:String, nb pNb:Int = -1) -> String {
     var lRet:String = self
     var lNb = 0
+    var lZone = lRet.startIndex..<lRet.endIndex
     
-    while let lRange = lRet.range(of: pString) , pNb == -1 || lNb < pNb {
+    while let lRange = lRet.range(of: pString,range: lZone) , pNb == -1 || lNb < pNb {
       lNb += 1
       lRet.replaceSubrange(lRange, with: pSub)
+      lZone = lRet.index(lRange.lowerBound, offsetBy: pSub.count)..<lRet.endIndex
     }
     
     return lRet
@@ -761,27 +763,6 @@ extension String {
     return lRet
   }
   
-  // XT: Replace methods
-  
-  /// Search all occurence of a string and replace them by another string
-  ///
-  /// - Parameters:
-  ///   - pSearch: String to search
-  ///   - pWith: Replace string
-  ///   - pNb: Number of occurences. By default -1 for all occurences
-  /// - Returns: a new string with the modification
-  public func replace(search pSearch:String, with pWith:String, nb pNb:Int = -1) -> String {
-    var lRet = self
-    var lNb = 0
-    
-    while let lRange = lRet.range(of: pSearch) , pNb == -1 || lNb < pNb {
-      lNb += 1
-      lRet.replaceSubrange(lRange, with: pWith)
-    }
-    
-    return lRet
-  }
-  
   // XT: RegEx methods
   
   /// Search all occurence of a regex and replace by a template for each
@@ -856,11 +837,6 @@ extension String {
     return lRet
   }
   
-  
-  // MARK: -> Public class override Mappable
-  
-  // MARK: -> Public implementation protocol <#protocol name#>
-  
   // MARK: -
   // MARK: Internal access (aka public for current module)
   // MARK: -
@@ -884,32 +860,6 @@ extension String {
   // MARK: -> Internal operators
   
   // MARK: -> Internal methods
-  
-  // MARK: -> Internal implementation protocol <#protocol name#>
-  
-  // MARK: -
-  // MARK: File Private access
-  // MARK: -
-  
-  // MARK: -> File Private enums
-  
-  // MARK: -> File Private structs
-  
-  // MARK: -> File Private class
-  
-  // MARK: -> File Private type alias
-  
-  // MARK: -> File Private static properties
-  
-  // MARK: -> File Private properties
-  
-  // MARK: -> File Private class methods
-  
-  // MARK: -> File Private init methods
-  
-  // MARK: -> File Private operators
-  
-  // MARK: -> File Private methods
   
   // MARK: -
   // MARK: Private access

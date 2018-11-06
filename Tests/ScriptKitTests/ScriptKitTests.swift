@@ -86,11 +86,11 @@ class ScriptKitTests: XCTestCase {
   
   func test_string_replace() {
     let lString = "Et animus ita eius insontium existimans aut insontium tener cogitatum "
-    var lValue = lString.replace(search: "existimans", with: "******")
+    var lValue = lString.replace(string: "existimans", sub: "******")
     
     XCTAssertTrue(lValue == "Et animus ita eius insontium ****** aut insontium tener cogitatum ", "Search and replace a string")
     
-    lValue = lString.replace(search: "in", with: "inX")
+    lValue = lString.replace(string: "in", sub: "inX")
     
     XCTAssertTrue(lValue == "Et animus ita eius inXsontium existimans aut inXsontium tener cogitatum ", "Search and replace a string")
   }
@@ -822,6 +822,24 @@ class ScriptKitTests: XCTestCase {
     }
     
     ScriptTest.run()
+  }
+ 
+  func test_option_env() {
+      class ScriptTest : ScriptKit {
+        public class func dummy(_ pVars:[String:String]) {}
+        public class func main() {
+          program(version: "0.0.1", owner: "me", year: "2018", info: "Test environment variable")
+        
+          cmd("cmd", title: "command", handler: dummy)
+            option(long: "option1", env: "SCRIPTKIT_ENV_OPTION1", default: "default", optional: false, title: "can also defined with SCRIPTKIT_ENV_OPTION1 environment variable")
+          
+          env["SCRIPTKIT_ENV_OPTION1"] = "value env"
+          
+          run(arguments: ["ScriptTest","cmd"])
+        }
+      }
+
+    ScriptTest.main()
   }
 }
 

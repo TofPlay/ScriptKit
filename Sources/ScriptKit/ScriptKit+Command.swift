@@ -3,7 +3,7 @@
 //  ScriptKit
 //
 //  Created by Christophe Braud on 11/06/2017.
-//  Base on Tof Templates (https://goo.gl/GdyFiw)
+//  Base on Tof Templates (https://bit.ly/2OWAgmb)
 //  Copyright © 2017 Christophe Braud. All rights reserved.
 //
 
@@ -13,7 +13,7 @@ import Foundation
 // MARK: Command extension
 // MARK: -
 /// ScriptKit extension for commands
-extension ScriptKit {
+public extension ScriptKit {
   
   // MARK: -
   // MARK: Public access
@@ -229,7 +229,7 @@ extension ScriptKit {
   ///   - pTitle: A short descrition of this command
   ///   - pHelp: A long descrition of this command
   /// - Returns: ScriptKit class object for chaining settings
-  public class func option(short pShort:String="", long pLong:String, variable pVariable:String, `default` pDefault:String?=nil, value pValue:String?=nil, optional pOptional:Bool=true, title pTitle:String="", help pHelp:String="") {
+  public class func option(short pShort:String="", long pLong:String, variable pVariable:String="", env pEnv:String="", `default` pDefault:String?=nil, value pValue:String?=nil, optional pOptional:Bool=true, title pTitle:String="", help pHelp:String="") {
     if self.scriptError == .noerror {
       
       guard pLong.isEmpty == false else {
@@ -237,12 +237,8 @@ extension ScriptKit {
         return
       }
       
-      guard pVariable.isEmpty == false else {
-        self.scriptError = .cmd("'variable' name is empty")
-        return
-      }
-      
-      let lOption = Option(short: pShort, long: pLong, variable: pVariable, default: pDefault, value: pValue, optional: pOptional, title:pTitle, help: pHelp)
+      let lVariable = pVariable.isEmpty ? pLong : pVariable
+      let lOption = Option(short: pShort, long: pLong, variable: lVariable, env: pEnv, default: pDefault, value: pValue, optional: pOptional, title:pTitle, help: pHelp)
       
       if let lCurrent = self.current {
         // Option for the current command
@@ -375,6 +371,14 @@ extension ScriptKit {
             }
           } else {
             lInvalids.append(lArg)
+          }
+        }
+      }
+      
+      for lOption in lCmd.options {
+        if lVars.keys.contains(lOption.variable) == false && lOption.env.isEmpty == false {
+          if let lValue = env[lOption.env] {
+            lVars[lOption.variable] = lValue
           }
         }
       }
@@ -529,10 +533,6 @@ extension ScriptKit {
   
   // MARK: -> Public methods
   
-  // MARK: -> Public class override Mappable
-  
-  // MARK: -> Public implementation protocol <#protocol name#>
-  
   // MARK: -
   // MARK: Internal access (aka public for current module)
   // MARK: -
@@ -555,6 +555,7 @@ extension ScriptKit {
     public var short:String = ""
     public var long:String = ""
     public var variable:String = ""
+    public var env:String = ""
     public var `default`:String? = nil
     public var value:String? = nil
     public var optional: Bool = true
@@ -564,10 +565,11 @@ extension ScriptKit {
     public init() {
     }
     
-    public init(short pShort:String="", long pLong:String, variable pVariable:String="", `default` pDefault:String? = nil, value pValue:String?=nil, optional pOptional:Bool=true,title pTitle:String, help pHelp:String = "") {
+    public init(short pShort:String="", long pLong:String, variable pVariable:String="", env pEnv:String="", `default` pDefault:String?=nil, value pValue:String?=nil, optional pOptional:Bool=true,title pTitle:String, help pHelp:String="") {
       self.short = pShort
       self.long = pLong
       self.variable = pVariable
+      self.env = pEnv
       self.default = pDefault
       self.value = pValue
       self.optional = pOptional
@@ -606,32 +608,6 @@ extension ScriptKit {
   // MARK: -> Internal operators
   
   // MARK: -> Internal methods
-  
-  // MARK: -> Internal implementation protocol <#protocol name#>
-  
-  // MARK: -
-  // MARK: File Private access
-  // MARK: -
-  
-  // MARK: -> File Private enums
-  
-  // MARK: -> File Private structs
-  
-  // MARK: -> File Private class
-  
-  // MARK: -> File Private type alias
-  
-  // MARK: -> File Private static properties
-  
-  // MARK: -> File Private properties
-  
-  // MARK: -> File Private class methods
-  
-  // MARK: -> File Private init methods
-  
-  // MARK: -> File Private operators
-  
-  // MARK: -> File Private methods
   
   // MARK: -
   // MARK: Private access
@@ -684,7 +660,7 @@ extension ScriptKit {
       }
       
       if pParameter == "--help" {
-        lRet = (option:Option(long: "help", title: "Current screen"), value:"true")
+        lRet = (option:Option(long: "help", title: "current screen"), value:"true")
       }
     }
     
@@ -712,7 +688,7 @@ extension ScriptKit {
     var lSize = 0
     var lOptions = pCmd.options
     
-    lOptions.append(Option(long: "help", title: "Current screen"))
+    lOptions.append(Option(long: "help", title: "current screen"))
     
     let lHelp:(String, [Option]) -> Void = {
       pTitle, pOptions in

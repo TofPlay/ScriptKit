@@ -3,7 +3,7 @@
 //  ScriptKit
 //
 //  Created by Christophe Braud on 11/06/2017.
-//  Base on Tof Templates (https://goo.gl/GdyFiw)
+//  Base on Tof Templates (https://bit.ly/2OWAgmb)
 //  Copyright © 2017 Christophe Braud. All rights reserved.
 //
 
@@ -83,10 +83,6 @@ open class ScriptKit {
   
   // MARK: -> Public methods
   
-  // MARK: -> Public class override Mappable
-  
-  // MARK: -> Public implementation protocol <#protocol name#>
-  
   // MARK: -
   // MARK: Internal access (aka public for current module)
   // MARK: -
@@ -117,8 +113,6 @@ open class ScriptKit {
   
   // MARK: -> Internal static properties
   
-  // MARK: --> Command + Option
-  
   // MARK: -> Internal properties
   
   // MARK: -> Internal class methods
@@ -128,32 +122,6 @@ open class ScriptKit {
   // MARK: -> Internal operators
   
   // MARK: -> Internal methods
-  
-  // MARK: -> Internal implementation protocol <#protocol name#>
-  
-  // MARK: -
-  // MARK: File Private access
-  // MARK: -
-  
-  // MARK: -> File Private enums
-  
-  // MARK: -> File Private structs
-  
-  // MARK: -> File Private class
-  
-  // MARK: -> File Private type alias
-  
-  // MARK: -> File Private static properties
-  
-  // MARK: -> File Private properties
-  
-  // MARK: -> File Private class methods
-  
-  // MARK: -> File Private init methods
-  
-  // MARK: -> File Private operators
-  
-  // MARK: -> File Private methods
   
   // MARK: -
   // MARK: Private access
@@ -165,8 +133,6 @@ open class ScriptKit {
   
   // MARK: -> Private class
   
-  // MARK: --> Command + Option
-
   // MARK: -> Private type alias
   
   // MARK: -> Private static properties
