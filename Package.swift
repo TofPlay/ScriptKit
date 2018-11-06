@@ -1,4 +1,4 @@
-// swift-tools-version:4.0
+// swift-tools-version:4.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 
@@ -26,5 +26,5 @@ let package = Package(
             name: "ScriptKitTests",
             dependencies: ["ScriptKit"]),
     ],
-    swiftLanguageVersions: [4]
+    swiftLanguageVersions: [.v4_2]
 )
