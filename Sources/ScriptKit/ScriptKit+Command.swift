@@ -129,7 +129,13 @@ public extension ScriptKit {
           lCurrent.cmds?.append(lCmd)
           self.current = lCmd
         } else {
-          self.scriptError = .cmd("'begin()' instruction missing")
+          if let lCurrent = self.stack.last {
+            // Sub-command of the parent
+            lCurrent.cmds?.append(lCmd)
+            self.current = lCmd
+          } else {
+            self.cmds.append(lCmd)
+          }
         }
       } else {
         // New main command
@@ -224,6 +230,7 @@ public extension ScriptKit {
   ///   - pShort: Define a short keyword for the option. By default is empty.
   ///   - pLong: Define a long keyword for the option
   ///   - pVariable: Associate a variable to the option
+  ///   - pEnv: Environment variable corresponding to the parameter. If the parameter is not supplied, look for the value in the environment variable.
   ///   - pDefault: Defined a default value for the variable. By default is `nil` for not used.
   ///   - pOptional: `true` the option is optional, `false` is required. By default is optional.
   ///   - pTitle: A short descrition of this command
@@ -260,10 +267,8 @@ public extension ScriptKit {
   public class func begin() {
     if self.scriptError == .noerror {
       if let lCurrent = self.current {
-        if lCurrent.cmds == nil {
           if lCurrent.cmds == nil {
             lCurrent.cmds = []
-          }
         }
       } else {
         if let lLast = self.cmds.last {
@@ -284,9 +289,20 @@ public extension ScriptKit {
   public class func end() {
     if self.scriptError == .noerror {
       if self.stack.count > 0 {
-        self.current = self.stack.removeLast()
+        let lCurrent = self.current
+        
         if self.stack.count == 0 {
           self.current = nil
+        } else {
+          self.current = self.stack.removeLast()
+
+          if self.current?.cmds?.last?.name == lCurrent?.name {
+            if self.stack.count == 0 {
+              self.current = nil
+            } else {
+              self.current = self.stack.removeLast()
+            }
+          }
         }
       } else {
         if self.current != nil {
@@ -510,6 +526,10 @@ public extension ScriptKit {
       case .done:
         if Display.level > 0 {
           Display.level -= 1
+          
+          if lBol != "\n" {
+            Display.lastAction = .compute
+          }
         }
         
         if Display.level == 0 {
@@ -518,9 +538,9 @@ public extension ScriptKit {
           }
           
           if error == nil || scriptError == .noerror {
-            print("\n ► ".fg.c256(228) + lMessage.cli.text + "\n\n")
+            print(lBol + " ► ".fg.c256(228) + lMessage.cli.text + "\n\n")
           } else {
-            print("\n ► ".fg.c256(196) + lMessage.cli.text + "\n\n")
+            print(lBol + " ► ".fg.c256(196) + lMessage.cli.text + "\n\n")
           }
         }
       }
