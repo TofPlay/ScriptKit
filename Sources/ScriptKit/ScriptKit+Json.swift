@@ -113,12 +113,15 @@ public extension ScriptKit {
   /// - Parameter:
   ///   - pData: Binary json
   /// - Returns: an object
-  public class func json2obj(_ pData:Data) -> Any? {
+  public class func json2obj(_ pData:Data?) -> Any? {
     var lRet:Any? = nil
-    do {
-      lRet = try JSONSerialization.jsonObject(with: pData, options: .allowFragments)
-    } catch let lError {
-      self.error = lError
+    
+    if let lData = pData {
+        do {
+          lRet = try JSONSerialization.jsonObject(with: lData, options: .allowFragments)
+        } catch let lError {
+          self.error = lError
+        }
     }
     return lRet
   }

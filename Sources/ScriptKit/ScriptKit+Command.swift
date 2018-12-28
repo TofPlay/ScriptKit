@@ -28,6 +28,7 @@ public extension ScriptKit {
     
     public enum `Type` {
       case none
+      case trace
       case info
       case warning
       case error
@@ -46,11 +47,28 @@ public extension ScriptKit {
     /// Enable verbose mode
     public static var verbose:Bool = false
     
+    /// Enable hiden mode
+    public static var hidden:Bool = false
+    
     /// Level of actions
     public static var level:Int = 0
+    
+    public static func push(hidden pHidden: Bool, body pBody:() -> Void, defer pDefer:() -> Void = {}) {
+      let lPrevious = hidden
+      hidden = pHidden
+      pBody()
+      pDefer()
+      hidden = lPrevious
+    }
   }
   
   // MARK: -> Public class
+  
+  public class Version {
+    public var progam:String = ""
+    public var remote:String = ""
+    public var source:String = ""
+  }
   
   // MARK: -> Public type alias
   
@@ -60,8 +78,8 @@ public extension ScriptKit {
   
   // XT: Properties
   
-  /// Version of the tool
-  public static var version:String = ""
+  /// Current version of the tool
+  public static var version = Version()
   
   /// Copyright of the tool
   public static var owner:String = ""
@@ -101,7 +119,7 @@ public extension ScriptKit {
     self.stack = []
     self.current = nil
     self.cmds = []
-    self.version = pVersion
+    self.version.progam = pVersion
     self.owner = pOwner
     self.year = pYear
     self.info = pInfo
@@ -337,15 +355,19 @@ public extension ScriptKit {
     lCmd.cmds = self.cmds
     
     if pArguments.count == 1 {
-      let lProgram = ((pArguments.first ?? "") as NSString).lastPathComponent
+      let lProgram = ((pArguments.first.unwrappedOr(default: "")) as NSString).lastPathComponent
       print("\nUsage".cli.title + ": \(lProgram) ".cli.text + "COMMAND <value>".cli.cmd + " [".cli.text + "subcommand <value>".cli.cmd + "] [".cli.text + "--longOption".cli.option.key.required + "] [".cli.text + "--longOption=value".cli.option.key.required + "] [".cli.text + "-shortOption".cli.option.key.required + "] [".cli.text + "-shortOption value".cli.option.key.required + "]\n\n".cli.text)
       print(self.info)
       self.help(cmd: lCmd, subcommands: false)
       
       print("Copyright © ".cli.copyright + self.year.cli.year + " " + self.owner.cli.owner)
       
-      if self.version.isEmpty == false {
-        print(", version ".cli.version + self.version.cli.nversion)
+      if self.version.progam.isEmpty == false {
+        print(", version ".cli.version + self.version.progam.cli.nversion)
+      }
+
+      if self.version.source != self.version.remote {
+        print("\nUpdate default source version from ".cli.text + self.version.source.cli.nversion + " to version ".cli.text + self.version.remote.cli.nversion)
       }
       
       print("\n\n".cli.text)
@@ -365,7 +387,7 @@ public extension ScriptKit {
             continue
           }
           
-          lVars[lVal.option.variable] = lVal.value ?? ""
+          lVars[lVal.option.variable] = lVal.value.unwrappedOr(default: "")
         } else {
           // Sub-commands
           if let lSubcmds = lCmd.cmds {
@@ -416,7 +438,7 @@ public extension ScriptKit {
             lDisplayHelp = true
           } else {
             // Command with a list of sub-commands
-            if lCmd.variable == nil && (lCmd.cmds?.count ?? 0) > 0 {
+            if lCmd.variable == nil && ((lCmd.cmds?.count).unwrappedOr(default: 0)) > 0 {
               lDisplayHelp = true
             }
           }
@@ -488,6 +510,10 @@ public extension ScriptKit {
   ///   - pFormat: Format of the message
   ///   - pArgs: Parameters associate to the format
   public class func display(type pType:Display.`Type`, verbose pVerbose:Bool = false, clear pClear:Bool = false, format pFormat:String = "",_ pArgs:CVarArg...) {
+    if Display.hidden {
+      return
+    }
+    
     let lSpace = String(repeating:" ", count: Display.level * 2)
     var lMessage = pArgs.count > 0 ? String(format: pFormat, arguments: pArgs) : pFormat
     var lBol = "\n"
@@ -502,6 +528,8 @@ public extension ScriptKit {
       switch pType {
       case .none:
         break
+      case .trace:
+        print(lBol + "\(lSpace)    " + lMessage.cli.text)
       case .info:
         print(lBol + "\(lSpace) 🔹  " + lMessage.cli.info)
       case .warning:

@@ -156,7 +156,7 @@ public extension ScriptKit {
                 lReadLine(pCache)
               }
             } else {
-              let lString = pCache + (String(data: lData, encoding: String.Encoding.utf8) ?? "")
+              let lString = pCache + (String(data: lData, encoding: String.Encoding.utf8).unwrappedOr(default: ""))
               var lLines = lString.components(separatedBy: CharacterSet.init(charactersIn: pSeperator))
               let lLastChar = lString[lString.index(before: lString.endIndex)]
               
@@ -238,12 +238,12 @@ public extension ScriptKit {
 
         if let lPipeOut = lProcess.standardOutput as? Pipe {
           let lData = lPipeOut.fileHandleForReading.readDataToEndOfFile()
-          self.stdout = (String(data: lData, encoding: String.Encoding.utf8) ?? "").components(separatedBy: CharacterSet.init(charactersIn: self.separator))
+          self.stdout = (String(data: lData, encoding: String.Encoding.utf8).unwrappedOr(default: "")).components(separatedBy: CharacterSet.init(charactersIn: self.separator))
         }
         
         if let lPipeErr = lProcess.standardError as? Pipe {
           let lData = lPipeErr.fileHandleForReading.readDataToEndOfFile()
-          self.stderr = (String(data: lData, encoding: String.Encoding.utf8) ?? "").components(separatedBy: CharacterSet.init(charactersIn: self.separator))
+          self.stderr = (String(data: lData, encoding: String.Encoding.utf8).unwrappedOr(default: "")).components(separatedBy: CharacterSet.init(charactersIn: self.separator))
         }
         
         self.exit = lProcess.terminationStatus

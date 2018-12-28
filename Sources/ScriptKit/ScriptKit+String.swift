@@ -614,15 +614,18 @@ extension String {
   ///   - pSub: Replace substring
   ///   - pNb: Number of occurence you want to replace. By default all.
   /// - Returns: a new instance of which was the replacement, otherwise return the original string
-  public func replace(string pString:String, sub pSub:String, nb pNb:Int = -1) -> String {
+  public func replace(string pString:String, sub pSub:String?, nb pNb:Int = -1) -> String {
     var lRet:String = self
-    var lNb = 0
-    var lZone = lRet.startIndex..<lRet.endIndex
     
-    while let lRange = lRet.range(of: pString,range: lZone) , pNb == -1 || lNb < pNb {
-      lNb += 1
-      lRet.replaceSubrange(lRange, with: pSub)
-      lZone = lRet.index(lRange.lowerBound, offsetBy: pSub.count)..<lRet.endIndex
+    if let lSub = pSub {
+      var lNb = 0
+      var lZone = lRet.startIndex..<lRet.endIndex
+      
+      while let lRange = lRet.range(of: pString,range: lZone) , pNb == -1 || lNb < pNb {
+        lNb += 1
+        lRet.replaceSubrange(lRange, with: lSub)
+        lZone = lRet.index(lRange.lowerBound, offsetBy: lSub.count)..<lRet.endIndex
+      }
     }
     
     return lRet
@@ -757,7 +760,7 @@ extension String {
   public func split(size pSize: Int) -> [String] {
     let lRet:[String] = stride(from: 0, to: self.count, by: pSize).map {
       let lStart = self.index(self.startIndex, offsetBy: $0)
-      let lEnd = self.index(lStart, offsetBy: pSize, limitedBy: self.endIndex) ?? self.endIndex
+      let lEnd = self.index(lStart, offsetBy: pSize, limitedBy: self.endIndex).unwrappedOr(default: self.endIndex)
       return String(self[lStart..<lEnd])
     }
     return lRet

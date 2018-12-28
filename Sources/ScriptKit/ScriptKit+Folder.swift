@@ -279,7 +279,7 @@ public extension ScriptKit {
   ///   - pPath: Any path
   /// - Returns: the directory
   public class func dir(path pPath:String) -> String {
-    var lRet = pPath.trimEnd("/").withoutLastWord("/") ?? ""
+    var lRet = pPath.trimEnd("/").withoutLastWord("/").unwrappedOr(default: "")
     
     if pPath.hasPrefix(lRet + "/") {
       lRet += "/"
@@ -301,7 +301,7 @@ public extension ScriptKit {
   ///   - pPath: Any path
   /// - Returns: the file name
   public class func fullname(path pPath:String) -> String {
-    let lRet = pPath.trimEnd("/").lastWord("/") ?? pPath
+    let lRet = pPath.trimEnd("/").lastWord("/").unwrappedOr(default: pPath)
     return lRet
   }
   
@@ -320,7 +320,7 @@ public extension ScriptKit {
   /// - Returns: the file name
   public class func name(path pPath:String) -> String {
     let lFullName = fullname(path:pPath)
-    let lRet = lFullName.trimEnd("/").withoutLastWord("\\.") ?? lFullName
+    let lRet = lFullName.trimEnd("/").withoutLastWord("\\.").unwrappedOr(default: lFullName)
     return lRet
   }
   
@@ -339,7 +339,7 @@ public extension ScriptKit {
   /// - Returns: the extension
   public class func ext(path pPath:String) -> String {
     let lFullName = fullname(path:pPath)
-    let lRet = lFullName.trimEnd("/").lastWord("\\.") ?? ""
+    let lRet = lFullName.trimEnd("/").lastWord("\\.").unwrappedOr(default: "")
     return lRet
   }
   
@@ -484,8 +484,17 @@ public extension ScriptKit {
   ///   - pTo: Target path
   /// - Returns: `true` unable to copy the original to the target path, otherwise return `false`. If an error occur the variable `error` is set with the error.
   @discardableResult
-  public class func cp(path pPath:String, to pTo:String) -> Bool {
+  public class func cp(path pPath:String, to pTo:String, overwrite pOverwrite:Bool = false) -> Bool {
     var lRet = false
+    
+    if pOverwrite {
+      if isDir(pTo) {
+        rmdir(path: pTo)
+      } else {
+        rm(path: pTo)
+      }
+    }
+    
     do {
       try FileManager.default.copyItem(atPath: pPath, toPath: pTo)
       lRet = true
@@ -521,8 +530,17 @@ public extension ScriptKit {
   ///   - pTo: Target path
   /// - Returns: `true` the path is moved, otherwise return `false`. If an error occur the variable `error` is set with the error.
   @discardableResult
-  public class func mv(at pAt:String, to pTo:String) -> Bool {
+  public class func mv(at pAt:String, to pTo:String, overwrite pOverwrite:Bool = false) -> Bool {
     var lRet = false
+
+    if pOverwrite {
+      if isDir(pTo) {
+        rmdir(path: pTo)
+      } else {
+        rm(path: pTo)
+      }
+    }
+    
     do {
       try FileManager.default.moveItem(atPath: pAt, toPath: pTo)
       lRet = true
@@ -798,7 +816,7 @@ public extension ScriptKit {
     do {
       let lAttributs = try FileManager.default.attributesOfItem(atPath: pPath)
       lRet = (lAttributs as NSDictionary).filePosixPermissions()
-      lRet = Int(String(lRet, radix: 8)) ?? 0
+      lRet = Int(String(lRet, radix: 8)).unwrappedOr(default: 0) 
     } catch let lError {
       self.error = lError
     }
@@ -892,6 +910,88 @@ public extension ScriptKit {
     return lRet
   }
   
+  /// Read a json file from an URL
+  ///
+  /// - Parameter:
+  ///   - pUrl: Url in input
+  /// - Returns: object specify, otherwise return nil. If an error occur the variable `error` is set with the error.
+  public class func readJson<T:Decodable>(codable pCodable: T.Type, url pUrl:String) -> T? {
+    var lRet:T? = nil
+    
+    do {
+      if let lUrl = URL(string: pUrl) {
+        let lData = try Data(contentsOf: lUrl)
+        lRet = try JSONDecoder().decode(T.self, from: lData)
+      }
+    } catch let lError {
+      self.error = lError
+    }
+    return lRet
+  }
+  
+  /// Read a json file from a path
+  ///
+  /// - Parameter:
+  ///   - pFile: Path of a text file
+  /// - Returns: object specify, otherwise return nil. If an error occur the variable `error` is set with the error.
+  public class func readJson<T:Decodable>(codable pCodable: T.Type, file pFile:String) -> T? {
+    var lRet:T? = nil
+    
+    do {
+      if let lFile = FileHandle(forReadingAtPath: pFile) {
+        let lData = lFile.readDataToEndOfFile()
+        lRet = try JSONDecoder().decode(T.self, from: lData)
+      } else {
+        self.scriptError = .folder("Error: Unable to read data from file '\(pFile)'")
+      }
+    } catch let lError {
+      self.error = lError
+    }
+
+    return lRet
+  }
+
+  /// Read a plist file from an URL
+  ///
+  /// - Parameter:
+  ///   - pUrl: Url in input
+  /// - Returns: object specify, otherwise return nil. If an error occur the variable `error` is set with the error.
+  public class func readPlist<T:Decodable>(codable pCodable: T.Type, url pUrl:String) -> T? {
+    var lRet:T? = nil
+    
+    do {
+      if let lUrl = URL(string: pUrl) {
+        let lData = try Data(contentsOf: lUrl)
+        lRet = try PropertyListDecoder().decode(T.self, from: lData)
+      }
+    } catch let lError {
+      self.error = lError
+    }
+    return lRet
+  }
+  
+  /// Read a json file from a path
+  ///
+  /// - Parameter:
+  ///   - pFile: Path of a text file
+  /// - Returns: object specify, otherwise return nil. If an error occur the variable `error` is set with the error.
+  public class func readPlist<T:Decodable>(codable pCodable: T.Type, file pFile:String) -> T? {
+    var lRet:T? = nil
+    
+    do {
+      if let lFile = FileHandle(forReadingAtPath: pFile) {
+        let lData = lFile.readDataToEndOfFile()
+        lRet = try PropertyListDecoder().decode(T.self, from: lData)
+      } else {
+        self.scriptError = .folder("Error: Unable to read data from file '\(pFile)'")
+      }
+    } catch let lError {
+      self.error = lError
+    }
+    
+    return lRet
+  }
+  
   //XT: Write files
   
   /// Write a text to a file
@@ -957,6 +1057,66 @@ public extension ScriptKit {
     return lRet
   }
 
+  /// Write an object to a json file
+  ///
+  ///   - pFile: Path of the file
+  ///   - pObject: Encodable object
+  /// - Returns: `true` if the object is saved in the file, otherwise return `false`. If an error occur the variable `error` is set with the error.
+  @discardableResult
+  public class func writeJson<T:Encodable>(file pFile:String, object pObject:T) -> Bool {
+    var lRet = false
+    
+    do {
+      let lData = try JSONEncoder().encode(pObject)
+
+      if exist(path: pFile) == false {
+        lRet = FileManager.default.createFile(atPath: pFile, contents: lData, attributes: nil)
+      } else if let lFile = FileHandle(forUpdatingAtPath: pFile) {
+        lFile.truncateFile(atOffset: 0)
+        lFile.write(lData)
+        lRet = true
+      }
+      
+      if lRet == false {
+        self.scriptError = .folder("Error: Unable to save data to file '\(pFile)'")
+      }
+    } catch let lError {
+      self.error = lError
+    }
+    
+    return lRet
+  }
+  
+  /// Write an object to a plist file
+  ///
+  ///   - pFile: Path of the file
+  ///   - pObject: Encodable object
+  /// - Returns: `true` if the object is saved in the file, otherwise return `false`. If an error occur the variable `error` is set with the error.
+  @discardableResult
+  public class func writePlist<T:Encodable>(file pFile:String, object pObject:T) -> Bool {
+    var lRet = false
+    
+    do {
+      let lData = try PropertyListEncoder().encode(pObject)
+      
+      if exist(path: pFile) == false {
+        lRet = FileManager.default.createFile(atPath: pFile, contents: lData, attributes: nil)
+      } else if let lFile = FileHandle(forUpdatingAtPath: pFile) {
+        lFile.truncateFile(atOffset: 0)
+        lFile.write(lData)
+        lRet = true
+      }
+      
+      if lRet == false {
+        self.scriptError = .folder("Error: Unable to save data to file '\(pFile)'")
+      }
+    } catch let lError {
+      self.error = lError
+    }
+    
+    return lRet
+  }
+  
   // MARK: -> Public init methods
   
   // MARK: -> Public operators
