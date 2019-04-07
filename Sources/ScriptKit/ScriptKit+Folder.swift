@@ -13,7 +13,7 @@ import Foundation
 // MARK: Folder extension
 // MARK: -
 /// ScriptKit extension for folders and files
-public extension ScriptKit {
+extension ScriptKit {
   // MARK: -
   // MARK: Public access
   // MARK: -

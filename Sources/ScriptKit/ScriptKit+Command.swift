@@ -13,7 +13,7 @@ import Foundation
 // MARK: Command extension
 // MARK: -
 /// ScriptKit extension for commands
-public extension ScriptKit {
+extension ScriptKit {
   
   // MARK: -
   // MARK: Public access

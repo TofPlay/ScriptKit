@@ -13,7 +13,7 @@ import Foundation
 // MARK: Json extension
 // MARK: -
 /// ScriptKit extension for Json
-public extension ScriptKit {
+extension ScriptKit {
   // MARK: -
   // MARK: Public access
   // MARK: -

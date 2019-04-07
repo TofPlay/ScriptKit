@@ -13,7 +13,7 @@ import Foundation
 // MARK: Shell extension
 // MARK: -
 /// ScriptKit extension for Shell
-public extension ScriptKit {
+extension ScriptKit {
   // MARK: -
   // MARK: ScriptKit.Shell
   // MARK: -

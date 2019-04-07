@@ -13,7 +13,7 @@ import Foundation
 // MARK: ANSI extension
 // MARK: -
 /// ScriptKit extension for ANSI codes
-public extension ScriptKit {
+extension ScriptKit {
   // MARK: -
   // MARK: Public access
   // MARK: -
