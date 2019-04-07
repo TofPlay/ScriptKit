@@ -193,7 +193,7 @@ extension ScriptKit {
     
     if lItems.count > 0 {
       for lItem in lItems {
-        if let lIndex = lCmd?.cmds?.index(where: { $0.name == lItem }) {
+        if let lIndex = lCmd?.cmds?.firstIndex(where: { $0.name == lItem }) {
           lCmd = lCmd?.cmds?[lIndex]
         } else {
           lCmd = nil
@@ -220,7 +220,7 @@ extension ScriptKit {
     
     if lItems.count > 0 {
       for lItem in lItems {
-        if let lIndex = lCmd?.cmds?.index(where: { $0.name == lItem }) {
+        if let lIndex = lCmd?.cmds?.firstIndex(where: { $0.name == lItem }) {
           lCmd = lCmd?.cmds?[lIndex]
         } else {
           lCmd = nil
@@ -391,7 +391,7 @@ extension ScriptKit {
         } else {
           // Sub-commands
           if let lSubcmds = lCmd.cmds {
-            if let lIndex = lSubcmds.index(where: { $0.name == lArg }) {
+            if let lIndex = lSubcmds.firstIndex(where: { $0.name == lArg }) {
               lCmd = lSubcmds[lIndex]
               if let lVariable = lCmd.variable {
                 if lArgs.count > 0 {
